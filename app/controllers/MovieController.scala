@@ -17,6 +17,7 @@ import scala.concurrent.Future
 class MovieController @Inject()(cc: ControllerComponents, movieRepository: MovieRepository) extends AbstractController(cc) {
 
   implicit val serializador = Json.format[Movie]
+  val logger = play.Logger.of("MovieController")
 
   def getMovies = Action.async {
     movieRepository
@@ -27,7 +28,11 @@ class MovieController @Inject()(cc: ControllerComponents, movieRepository: Movie
           "message" -> "Movies listed"
         )
         Ok(j)
-      })
+      }).recover {
+      case ex =>
+        logger.error("Fallo en getMovies", ex)
+        InternalServerError(s"Hubo un error: ${ex.getLocalizedMessage}")
+    }
   }
 
   def getMovie(id: String) = Action.async {
@@ -39,7 +44,11 @@ class MovieController @Inject()(cc: ControllerComponents, movieRepository: Movie
           "message" -> "Movie listed"
         )
         Ok(j)
-      })
+      }).recover {
+      case ex =>
+        logger.error("Fallo en getMovie", ex)
+        InternalServerError(s"Hubo un error: ${ex.getLocalizedMessage}")
+    }
   }
 
   def createMovie = Action.async(parse.json) { request =>
@@ -55,7 +64,11 @@ class MovieController @Inject()(cc: ControllerComponents, movieRepository: Movie
               "message" -> "Movie created"
             )
             Ok(j)
-          })
+          }).recover {
+          case ex =>
+            logger.error("Fallo en createMovie", ex)
+            InternalServerError(s"Hubo un error: ${ex.getLocalizedMessage}")
+        }
       }
     }
 
@@ -74,7 +87,11 @@ class MovieController @Inject()(cc: ControllerComponents, movieRepository: Movie
               "message" -> "Movie updated"
             )
             Ok(j)
-          })
+          }).recover {
+          case ex =>
+            logger.error("Fallo en updateMovie", ex)
+            InternalServerError(s"Hubo un error: ${ex.getLocalizedMessage}")
+        }
       }
     }
 
@@ -89,6 +106,10 @@ class MovieController @Inject()(cc: ControllerComponents, movieRepository: Movie
           "message" -> "Movies listed"
         )
         Ok(j)
-      })
+      }).recover {
+      case ex =>
+        logger.error("Fallo en deleteMovie", ex)
+        InternalServerError(s"Hubo un error: ${ex.getLocalizedMessage}")
+    }
   }
 }
